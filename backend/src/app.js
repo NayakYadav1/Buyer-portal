@@ -4,7 +4,6 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-// To create the table if not exist
 const initializeTables = require('./utils/initDb');
 initializeTables();  
 
@@ -22,5 +21,5 @@ app.use('/api/favorites', favoritesRoutes);
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => 
-    console.log(`Server succesfully started on port ${PORT}`)
+    console.log(`Server successfully started on port ${PORT}`)
 );
