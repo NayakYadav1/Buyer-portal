@@ -13,7 +13,8 @@ exports.register = async (req, res) => {
     }
     const hashedPassword = await bcrypt.hash(password, 10); 
     const user = await createUser(email, hashedPassword, name); 
-    res.status(201).json({ message: 'User registered' }); 
+    const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    res.status(201).json({ token, user: { name: user.name, role: user.role }, message: 'User registered successfully' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' }); 
@@ -22,12 +23,16 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => { 
   try { 
-    const { email, password } = req.body; 
+    const { email, password } = req.body;
     const user = await findUserByEmail(email); 
-    if (!user || !(await bcrypt.compare(password, user.password))) return res.status(401).json({ error: 'Invalid credentials' }); 
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
     const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' }); 
-    res.json({ token, user: { name: user.name, role: user.role } }); 
-  } catch (err) { 
+    const responseData = { token, user: { id: user.id, name: user.name, role: user.role } };
+    res.json(responseData);
+  } catch (err) {
+    console.error('Login error:', err);
     res.status(500).json({ error: 'Server error' }); 
   } 
 }; 

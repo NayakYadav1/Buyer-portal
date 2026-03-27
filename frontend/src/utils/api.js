@@ -5,11 +5,21 @@ const API_BASE_URL = 'http://localhost:5000/api';
 export const loginUser = async (email, password) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/auth/login`, { email, password });
-    localStorage.setItem('token', response.data.token);
-    localStorage.setItem('user', JSON.stringify(response.data.user));
-    return response.data;
+    console.log('Full response:', response);
+    if (response.data && response.data.token) {
+      console.log('Token received:', response.data.token);
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      console.log('Data saved to localStorage');
+      return response.data;
+    } else {
+      console.error('No token in response:', response.data);
+      throw new Error('No token received from server');
+    }
   } catch (error) {
-    throw error.response?.data?.message || 'Login failed. Please check your credentials.';
+    console.error('Full error object:', error);
+    console.error('Error response:', error.response);
+    throw error.response?.data?.message || error.message || 'Login failed. Please check your credentials.';
   }
 };
 
@@ -21,11 +31,16 @@ export const getAuthHeaders = () => {
 export const registerUser = async (name, email, password) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/auth/register`, { name, email, password });
-    localStorage.setItem('token', response.data.token);
-    localStorage.setItem('user', JSON.stringify(response.data.user));
-    return response.data;
+    if (response.data && response.data.token) {
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      return response.data;
+    } else {
+      throw new Error('No token received from server');
+    }
   } catch (error) {
-    throw error.response?.data?.message || 'Registration failed. Please try again.';
+    console.error('Registration error:', error);
+    throw error.response?.data?.message || error.message || 'Registration failed. Please try again.';
   }
 };
 
@@ -48,7 +63,8 @@ export const getFavorites = async () => {
     const response = await axios.get(`${API_BASE_URL}/favorites`, getAuthHeaders());
     return response.data;
   } catch (error) {
-    throw error.response?.data?.message || 'Failed to load favorites.';
+    console.error('Get favorites error:', error);
+    throw error.response?.data?.message || error.message || 'Failed to load favorites.';
   }
 };
 
@@ -56,20 +72,22 @@ export const addFavorite = async (propertyId) => {
   try {
     const response = await axios.post(
       `${API_BASE_URL}/favorites`,
-      { title, address, price },
+      { propertyId },
       getAuthHeaders()
     );
     return response.data;
   } catch (error) {
-    throw error.response?.data?.message || 'Failed to add favorite.';
+    console.error('Add favorite error:', error);
+    throw error.response?.data?.message || error.message || 'Failed to add favorite.';
   }
 };
 
 export const removeFavorite = async (propertyId) => {
   try {
-    const response = await axios.delete(`${API_BASE_URL}/favorites/${id}`, getAuthHeaders());
+    const response = await axios.delete(`${API_BASE_URL}/favorites/${propertyId}`, getAuthHeaders());
     return response.data;
   } catch (error) {
-    throw error.response?.data?.message || 'Failed to remove favorite.';
+    console.error('Remove favorite error:', error);
+    throw error.response?.data?.message || error.message || 'Failed to remove favorite.';
   }
 };
