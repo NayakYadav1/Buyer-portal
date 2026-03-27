@@ -19,8 +19,9 @@ async function initializeTables() {
       CREATE TABLE IF NOT EXISTS favorites (
         id SERIAL PRIMARY KEY,
         user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        property_id VARCHAR NOT NULL UNIQUE
-      )
+        property_id VARCHAR NOT NULL,
+        UNIQUE (user_id, property_id)
+      );
     `);
     console.log('Favorites table created successfully');
 
