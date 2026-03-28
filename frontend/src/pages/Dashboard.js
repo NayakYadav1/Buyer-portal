@@ -8,7 +8,6 @@ const Dashboard = () => {
   const user = getCurrentUser();
   const navigate = useNavigate();
 
-  // Mock properties data - in a real app, this would come from an API
   const mockProperties = [
     { id: 'prop1', title: 'Modern Apartment Downtown', price: '$250,000', location: 'Downtown' },
     { id: 'prop2', title: 'Cozy House in Suburbs', price: '$350,000', location: 'Suburbs' },
